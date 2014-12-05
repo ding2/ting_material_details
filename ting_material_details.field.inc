@@ -413,12 +413,17 @@ function ting_material_details_field_formatter_view($entity_type, $entity, $fiel
       switch ($display['type']) {
         case 'ting_details_single':
           $details = '';
+
           if (is_array($val)) {
             foreach ($val as $detail) {
               $details .= '<span class="ting-material-detail">' . $detail . '</span>';
             }
           }
           else {
+            if ($field['field_name'] == 'ting_details_classification') {
+              $dk5_text = $entity->getClassificationText();
+              $val = l($val, 'search/ting/phrase.subject="' . $val . '"') . ' (' . $dk5_text . ')';
+            }
             $details = $val;
           }
           $element[$delta] = array(
