@@ -415,6 +415,9 @@ function ting_material_details_field_formatter_view($entity_type, $entity, $fiel
           $details = '';
           if (is_array($val)) {
             foreach ($val as $detail) {
+              if ($field['field_name'] == 'ting_details_contributor') {
+                $detail = l($detail, 'search/ting/term.creator="' . $detail . '"');
+              }
               $details .= '<span class="ting-material-detail">' . $detail . '</span>';
             }
           }
