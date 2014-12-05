@@ -420,7 +420,10 @@ function ting_material_details_field_formatter_view($entity_type, $entity, $fiel
             }
           }
           else {
-            if ($field['field_name'] == 'ting_details_classification') {
+            if ($field['field_name'] == 'ting_details_contributor') {
+              $val = l($val, 'search/ting/term.creator="' . $val . '"');
+            }
+            elseif ($field['field_name'] == 'ting_details_classification') {
               $dk5_text = $entity->getClassificationText();
               $val = l($val, 'search/ting/phrase.subject="' . $val . '"');
               if (!empty($dk5_text)) {
