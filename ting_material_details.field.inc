@@ -278,26 +278,104 @@ function ting_material_details_field_formatter_info() {
         'ting_details_pegi',
       ),
     ),
+
     'ting_details_creator_search' => array(
       'label' => t('Creator search link'),
       'field types' => array(
         'ting_details_contributor',
       ),
     ),
+
     'ting_details_subject_search' => array(
       'label' => t('Subject search link'),
       'field types' => array(
         'ting_details_subjects',
       ),
     ),
+
     'ting_details_seriesdescription_search' => array(
       'label' => t('Series search link'),
       'field types' => array(
         'ting_details_seriesdescription',
       ),
     ),
+
+    'ting_details_generic_search' => array(
+      'label' => t('Search link'),
+      'field types' => array(
+        'ting_details_age',
+        'ting_details_audience',
+        'ting_details_classification',
+        'ting_details_contributor',
+        'ting_details_contributor',
+        'ting_details_description',
+        'ting_details_extent',
+        'ting_details_format',
+        'ting_details_genre',
+        'ting_details_isbn',
+        'ting_details_ispartof',
+        'ting_details_language',
+        'ting_details_musician',
+        'ting_details_pegi',
+        'ting_details_publisher',
+        'ting_details_referenced',
+        'ting_details_replaced_by',
+        'ting_details_replaces',
+        'ting_details_rights',
+        'ting_details_seriesdescription',
+        'ting_details_source',
+        'ting_details_spatial',
+        'ting_details_spoken',
+        'ting_details_subjects',
+        'ting_details_subjects',
+        'ting_details_subtitles',
+        'ting_details_tracks',
+        'ting_details_type',
+        'ting_details_version',
+      ),
+      'settings' => array(
+        'index' => 'term.default',
+      ),
+    ),
   );
 }
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function ting_material_details_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = NULL;
+
+  if ($display['type'] == 'ting_details_generic_search') {
+    $element['index'] = array(
+      '#title' => t('Search index'),
+      '#type' => 'textfield',
+      '#size' => 20,
+      '#default_value' => $settings['index'],
+      '#required' => TRUE,
+      '#description' => t('OpenSearch index to search in.'),
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function ting_material_details_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = '';
+  if ($display['type'] == 'ting_details_generic_search') {
+    $summary = t('Linked to search in @index index.', array('@index' => $settings['index']));
+  }
+
+  return $summary;
+}
+
 
 /**
  * Helper function for retrieving record-field.
@@ -457,10 +535,33 @@ function ting_material_details_field_formatter_view($entity_type, $entity, $fiel
             '#markup' => $entity->serieDescription,
           );
           break;
+
+        case 'ting_details_generic_search':
+          if (!is_array($val)) {
+            $val = array($val);
+          }
+          $links = array();
+          foreach ($val as $value) {
+            $links[] = l($value, 'search/ting/' . $display['settings']['index'] . '=' . _ting_material_details_quote($value));
+          }
+          $element[$delta] = array(
+            '#markup' => implode(', ', $links),
+          );
+          break;
       }
     }
   }
   return $element;
+}
+
+/**
+ * Quote a string for index search, if it contains anything exotic.
+ */
+function _ting_material_details_quote($string) {
+  if (preg_match('/(\s+|"|=|\b(and|or|not|prox)\b)/', $string)) {
+    $string = '"' . strtr($string, array('"' => '\\"')) . '"';
+  }
+  return $string;
 }
 
 /**
@@ -538,4 +639,3 @@ function ting_material_details_field_formatter_prepare_view($entity_type, $entit
     );
   }
 }
-
